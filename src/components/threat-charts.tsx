@@ -96,7 +96,6 @@ export function PublishedTrend({ cves }: { cves: Cve[] }) {
   }
   const data = [...map.entries()]
     .sort((a, b) => (a[0] < b[0] ? -1 : 1))
-    .slice(-14)
     .map(([date, count]) => ({ date: date.slice(5), count }));
 
   return (
