@@ -10,7 +10,10 @@ export const subscribe = createServerFn({ method: "POST" })
   .inputValidator((input) => SubscribeSchema.parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+    // Types regen after migration; cast for now.
+    const { error } = await (supabaseAdmin as unknown as {
+      from: (t: string) => { insert: (v: unknown) => Promise<{ error: { code?: string } | null }> };
+    })
       .from("subscribers")
       .insert({ email: data.email, severity_threshold: data.severity_threshold });
     if (error) {
