@@ -52,17 +52,40 @@ export const Route = createFileRoute("/")({
   ),
 });
 
+function useCvesByRange(cves: { publishedAt: string }[], days: number) {
+  return useMemo(() => {
+    if (days <= 0) return cves;
+    const newest = cves.length
+      ? new Date(Math.max(...cves.map((c) => new Date(c.publishedAt).getTime())))
+      : new Date();
+    const cutoff = new Date(newest);
+    cutoff.setDate(cutoff.getDate() - days);
+    return cves.filter((c) => new Date(c.publishedAt) >= cutoff);
+  }, [cves, days]);
+}
+
 function Dashboard() {
   const { data: cveData } = useSuspenseQuery(cvesQO);
   const { data: newsData } = useSuspenseQuery(newsQO);
-  const cves = cveData.cves;
+  const allCves = cveData.cves;
   const news = newsData.news;
+
+  const [days, setDays] = useState(30);
+  const cves = useCvesByRange(allCves, days);
 
   const critical = cves.filter((c) => c.severity === "CRITICAL").length;
   const high = cves.filter((c) => c.severity === "HIGH").length;
   const avgScore =
     cves.filter((c) => c.score != null).reduce((s, c) => s + (c.score ?? 0), 0) /
     Math.max(1, cves.filter((c) => c.score != null).length);
+
+  const rangeLabel = days === 0 ? "All time" : `Last ${days} days`;
+
+  const ranges = [
+    { label: "7D", value: 7 },
+    { label: "30D", value: 30 },
+    { label: "90D", value: 90 },
+  ];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
@@ -109,16 +132,36 @@ function Dashboard() {
       </section>
 
       {/* Charts */}
-      <section className="mt-10 grid gap-4 lg:grid-cols-3">
-        <Panel title="Severity distribution" subtitle="Latest fetched CVEs">
-          <SeverityPie cves={cves} />
-        </Panel>
-        <Panel title="Published trend" subtitle="CVEs per day">
-          <PublishedTrend cves={cves} />
-        </Panel>
-        <Panel title="Top affected vendors" subtitle="Most CVEs in the feed">
-          <TopVendorsBar cves={cves} />
-        </Panel>
+      <section className="mt-10">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold">Threat trends</h2>
+          <div className="inline-flex items-center gap-1 rounded-lg border border-border/70 bg-card p-1">
+            {ranges.map((r) => (
+              <button
+                key={r.value}
+                onClick={() => setDays(r.value)}
+                className={`rounded-md px-3 py-1 text-xs font-medium transition ${
+                  days === r.value
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Panel title="Severity distribution" subtitle={rangeLabel}>
+            <SeverityPie cves={cves} />
+          </Panel>
+          <Panel title="Published trend" subtitle={rangeLabel}>
+            <PublishedTrend cves={cves} />
+          </Panel>
+          <Panel title="Top affected vendors" subtitle={rangeLabel}>
+            <TopVendorsBar cves={cves} />
+          </Panel>
+        </div>
       </section>
 
       {/* CVE + News */}
@@ -131,7 +174,7 @@ function Dashboard() {
             icon={<Radar className="h-4 w-4" />}
           />
           <div className="mt-4 grid gap-3">
-            {cves.slice(0, 6).map((c) => (
+            {allCves.slice(0, 6).map((c) => (
               <CveCard key={c.id} cve={c} />
             ))}
           </div>
