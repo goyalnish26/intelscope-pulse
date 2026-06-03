@@ -102,7 +102,7 @@ async function fetchFromNvd(limit: number): Promise<Cve[]> {
 
 export const getCves = createServerFn({ method: "GET" })
   .inputValidator((input: { limit?: number } | undefined) =>
-    z.object({ limit: z.number().int().min(1).max(100).default(50) }).parse(input ?? {}),
+    z.object({ limit: z.number().int().min(1).max(2000).default(2000) }).parse(input ?? {}),
   )
   .handler(async ({ data }) => {
     const cves = await fetchFromNvd(data.limit);
