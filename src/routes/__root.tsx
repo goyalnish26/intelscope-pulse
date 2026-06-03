@@ -72,13 +72,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Sentinel/Intel — Threat Intelligence Dashboard" },
+      { title: "Intel Scope — Threat Intelligence Dashboard" },
       {
         name: "description",
         content:
           "Free, real-time cybersecurity threat intelligence dashboard: latest CVEs, attack trends, and curated security news.",
       },
-      { property: "og:title", content: "Sentinel/Intel — Threat Intelligence Dashboard" },
+      { property: "og:title", content: "Intel Scope — Threat Intelligence Dashboard" },
       {
         property: "og:description",
         content:
@@ -86,10 +86,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "Sentinel/Intel — Threat Intelligence Dashboard" },
-      { name: "description", content: "Threat Watcher is a web application that centralizes cybersecurity threat data, presenting it through interactive visualizations and curated security news." },
-      { property: "og:description", content: "Threat Watcher is a web application that centralizes cybersecurity threat data, presenting it through interactive visualizations and curated security news." },
-      { name: "twitter:description", content: "Threat Watcher is a web application that centralizes cybersecurity threat data, presenting it through interactive visualizations and curated security news." },
+      { name: "twitter:title", content: "Intel Scope — Threat Intelligence Dashboard" },
+      { name: "description", content: "Intel Scope is a web application that centralizes cybersecurity threat data, presenting it through interactive visualizations and curated security news." },
+      { property: "og:description", content: "Intel Scope is a web application that centralizes cybersecurity threat data, presenting it through interactive visualizations and curated security news." },
+      { name: "twitter:description", content: "Intel Scope is a web application that centralizes cybersecurity threat data, presenting it through interactive visualizations and curated security news." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a9be3b7f-ac2c-4cd7-be3c-1e71c36b034c/id-preview-9acc5652--6117c642-4fbe-4a32-9296-b2d8bb11639a.lovable.app-1780488161698.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a9be3b7f-ac2c-4cd7-be3c-1e71c36b034c/id-preview-9acc5652--6117c642-4fbe-4a32-9296-b2d8bb11639a.lovable.app-1780488161698.png" },
     ],
