@@ -18,10 +18,10 @@ export function SiteHeader() {
           </span>
           <div className="leading-tight">
             <div className="text-sm font-semibold tracking-wide text-foreground">
-              SENTINEL<span className="text-primary">/</span>INTEL
+              INTEL<span className="text-primary"> </span>SCOPE
             </div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Threat Intelligence
+              Cyber Threat Intelligence
             </div>
           </div>
         </Link>
@@ -47,7 +47,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-border/60 mt-20">
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p>© {new Date().getFullYear()} Sentinel/Intel · Open threat intelligence for everyone.</p>
+        <p>© {new Date().getFullYear()} Intel Scope · Open threat intelligence for everyone.</p>
         <p className="font-mono">
           Data: <span className="text-primary">NVD</span> · RSS:{" "}
           <span className="text-primary">5 sources</span>
