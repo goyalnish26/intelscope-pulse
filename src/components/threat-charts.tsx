@@ -22,11 +22,12 @@ const SEV_COLOR: Record<string, string> = {
 };
 
 const tooltipStyle = {
-  background: "oklch(0.21 0.035 250)",
-  border: "1px solid oklch(0.3 0.04 250)",
+  background: "oklch(0.35 0.04 250)",
+  border: "1px solid oklch(0.78 0.15 200 / 0.4)",
   borderRadius: 8,
   fontSize: 12,
   color: "oklch(0.97 0.01 230)",
+  boxShadow: "0 4px 20px oklch(0.78 0.15 200 / 0.2)",
 };
 
 export function SeverityPie({ cves }: { cves: Cve[] }) {
