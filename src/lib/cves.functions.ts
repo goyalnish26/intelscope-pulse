@@ -67,7 +67,7 @@ async function fetchFromNvd(limit: number): Promise<Cve[]> {
     return cache.data.slice(0, limit);
   }
   const url = new URL("https://services.nvd.nist.gov/rest/json/cves/2.0");
-  url.searchParams.set("resultsPerPage", "100");
+  url.searchParams.set("resultsPerPage", "2000");
   url.searchParams.set("startIndex", "0");
 
   try {
