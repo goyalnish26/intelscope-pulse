@@ -18,10 +18,11 @@ import {
   SeverityPie,
   TopVendorsBar,
 } from "@/components/threat-charts";
+import { useState, useMemo } from "react";
 
 const cvesQO = queryOptions({
-  queryKey: ["cves", 50],
-  queryFn: () => getCves({ data: { limit: 50 } }),
+  queryKey: ["cves", 2000],
+  queryFn: () => getCves({ data: { limit: 2000 } }),
 });
 const newsQO = queryOptions({
   queryKey: ["news"],
