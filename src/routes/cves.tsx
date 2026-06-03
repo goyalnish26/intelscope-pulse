@@ -13,13 +13,13 @@ const cvesQO = queryOptions({
 export const Route = createFileRoute("/cves")({
   head: () => ({
     meta: [
-      { title: "CVE Feed — Sentinel/Intel" },
+      { title: "CVE Feed — Intel Scope" },
       {
         name: "description",
         content:
           "Browse the latest CVEs from the NIST National Vulnerability Database. Filter by severity, search by ID or keyword.",
       },
-      { property: "og:title", content: "CVE Feed — Sentinel/Intel" },
+      { property: "og:title", content: "CVE Feed — Intel Scope" },
       {
         property: "og:description",
         content: "Latest CVEs from NVD with severity filters and keyword search.",

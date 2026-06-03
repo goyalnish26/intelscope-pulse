@@ -4,13 +4,13 @@ import { Database, Newspaper, Radar, ShieldAlert } from "lucide-react";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — Sentinel/Intel" },
+      { title: "About — Intel Scope" },
       {
         name: "description",
         content:
-          "About Sentinel/Intel: a free, open threat intelligence dashboard aggregating NVD CVEs and curated security news.",
+          "About Intel Scope: a free, open threat intelligence dashboard aggregating NVD CVEs and curated security news.",
       },
-      { property: "og:title", content: "About Sentinel/Intel" },
+      { property: "og:title", content: "About — Intel Scope" },
       {
         property: "og:description",
         content: "Why we built a free threat intelligence dashboard for everyone.",
@@ -28,7 +28,7 @@ function AboutPage() {
       </div>
       <h1 className="mt-2 text-3xl font-bold">Threat intelligence, democratized.</h1>
       <p className="mt-4 text-muted-foreground">
-        Sentinel/Intel is a free, no-friction dashboard for cybersecurity professionals,
+        Intel Scope is a free, no-friction dashboard for cybersecurity professionals,
         small business owners, students, and curious technologists. We aggregate
         vulnerability data from the NIST National Vulnerability Database and curated security
         news from five trusted sources — and present them through clear visualizations.

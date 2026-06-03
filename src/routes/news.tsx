@@ -11,13 +11,13 @@ const newsQO = queryOptions({
 export const Route = createFileRoute("/news")({
   head: () => ({
     meta: [
-      { title: "Security News — Sentinel/Intel" },
+      { title: "Security News — Intel Scope" },
       {
         name: "description",
         content:
           "Curated cybersecurity news from The Hacker News, Krebs on Security, SecurityWeek, BleepingComputer, and Dark Reading.",
       },
-      { property: "og:title", content: "Security News — Sentinel/Intel" },
+      { property: "og:title", content: "Security News — Intel Scope" },
       {
         property: "og:description",
         content: "Latest security news aggregated from five top industry sources.",

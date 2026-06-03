@@ -32,7 +32,7 @@ const newsQO = queryOptions({
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Sentinel/Intel — Threat Intelligence Dashboard" },
+      { title: "Intel Scope — Threat Intelligence Dashboard" },
       {
         name: "description",
         content:
