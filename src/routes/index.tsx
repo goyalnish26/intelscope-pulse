@@ -52,7 +52,7 @@ export const Route = createFileRoute("/")({
   ),
 });
 
-function useCvesByRange(cves: { publishedAt: string }[], days: number) {
+function useCvesByRange<T extends { publishedAt: string }>(cves: T[], days: number): T[] {
   return useMemo(() => {
     if (days <= 0) return cves;
     const newest = cves.length
