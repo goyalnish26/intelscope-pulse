@@ -144,30 +144,61 @@ function Dashboard() {
       </section>
 
       {/* Stats */}
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard
-          label="Total CVEs tracked"
-          value={cves.length.toString()}
-          icon={<Radar className="h-4 w-4" />}
-        />
-        <StatCard
-          label="Critical"
-          value={critical.toString()}
-          icon={<AlertTriangle className="h-4 w-4" />}
-          tone="critical"
-        />
-        <StatCard
-          label="High"
-          value={high.toString()}
-          icon={<Activity className="h-4 w-4" />}
-          tone="high"
-        />
-        <StatCard
-          label="Avg CVSS score"
-          value={Number.isFinite(avgScore) ? avgScore.toFixed(1) : "—"}
-          icon={<ShieldCheck className="h-4 w-4" />}
-        />
-      </section>
+      {fetchError && allCves.length === 0 ? (
+        <section className="rounded-lg border border-destructive/40 bg-destructive/10 p-6 text-center">
+          <AlertTriangle className="mx-auto h-8 w-8 text-destructive" />
+          <h2 className="mt-3 text-base font-semibold">Failed to load CVE data</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{fetchError}</p>
+          <button
+            onClick={() => router.invalidate()}
+            className="mt-4 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+          >
+            <RefreshCw className="h-4 w-4" /> Retry
+          </button>
+        </section>
+      ) : (
+        <>
+          <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <StatCard
+              label="Total CVEs tracked"
+              value={cves.length.toString()}
+              icon={<Radar className="h-4 w-4" />}
+            />
+            <StatCard
+              label="Critical"
+              value={critical.toString()}
+              icon={<AlertTriangle className="h-4 w-4" />}
+              tone="critical"
+            />
+            <StatCard
+              label="High"
+              value={high.toString()}
+              icon={<Activity className="h-4 w-4" />}
+              tone="high"
+            />
+            <StatCard
+              label="Avg CVSS score"
+              value={Number.isFinite(avgScore) ? avgScore.toFixed(1) : "—"}
+              icon={<ShieldCheck className="h-4 w-4" />}
+            />
+          </section>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+            <span>
+              Last updated: <span className="text-foreground">{formatRelative(fetchedAt, now)}</span>
+              {fetchError && (
+                <span className="ml-2 text-destructive">· stale ({fetchError})</span>
+              )}
+            </span>
+            <button
+              onClick={() => router.invalidate()}
+              className="inline-flex items-center gap-1 rounded-md border border-border/70 px-2 py-1 text-xs hover:border-primary/50 hover:text-foreground"
+            >
+              <RefreshCw className="h-3 w-3" /> Refresh
+            </button>
+          </div>
+        </>
+      )}
+
 
       {/* Charts */}
       <section className="mt-10">
