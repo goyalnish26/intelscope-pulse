@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Newspaper,
   Radar,
+  RefreshCw,
   ShieldCheck,
 } from "lucide-react";
 import { getCves } from "@/lib/cves.functions";
@@ -18,7 +19,7 @@ import {
   SeverityPie,
   TopVendorsBar,
 } from "@/components/threat-charts";
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 const cvesQO = queryOptions({
   queryKey: ["cves", 100],
@@ -45,12 +46,27 @@ export const Route = createFileRoute("/")({
     context.queryClient.ensureQueryData(newsQO);
   },
   component: Dashboard,
-  errorComponent: ({ error }) => (
-    <div className="mx-auto max-w-3xl px-6 py-16 text-center">
-      <p className="text-destructive">Couldn't load the dashboard: {error.message}</p>
-    </div>
-  ),
+  pendingMs: 0,
+  pendingComponent: DashboardSkeleton,
+  errorComponent: ErrorView,
 });
+
+function ErrorView({ error }: { error: Error }) {
+  const router = useRouter();
+  return (
+    <div className="mx-auto max-w-3xl px-6 py-16 text-center">
+      <AlertTriangle className="mx-auto h-10 w-10 text-destructive" />
+      <h2 className="mt-4 text-xl font-semibold">Couldn't load the dashboard</h2>
+      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+      <button
+        onClick={() => router.invalidate()}
+        className="mt-6 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+      >
+        <RefreshCw className="h-4 w-4" /> Retry
+      </button>
+    </div>
+  );
+}
 
 function useCvesByRange<T extends { publishedAt: string }>(cves: T[], days: number): T[] {
   return useMemo(() => {
@@ -64,11 +80,31 @@ function useCvesByRange<T extends { publishedAt: string }>(cves: T[], days: numb
   }, [cves, days]);
 }
 
+function formatRelative(iso: string, now: number): string {
+  const diff = Math.max(0, now - new Date(iso).getTime());
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m} minute${m === 1 ? "" : "s"} ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} hour${h === 1 ? "" : "s"} ago`;
+  const d = Math.floor(h / 24);
+  return `${d} day${d === 1 ? "" : "s"} ago`;
+}
+
 function Dashboard() {
+  const router = useRouter();
   const { data: cveData } = useSuspenseQuery(cvesQO);
   const { data: newsData } = useSuspenseQuery(newsQO);
   const allCves = cveData.cves;
   const news = newsData.news;
+  const fetchError = cveData.error;
+  const fetchedAt = cveData.fetchedAt;
+
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   const [days, setDays] = useState(30);
   const cves = useCvesByRange(allCves, days);
@@ -86,6 +122,8 @@ function Dashboard() {
     { label: "30D", value: 30 },
     { label: "90D", value: 90 },
   ];
+
+
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
@@ -106,30 +144,61 @@ function Dashboard() {
       </section>
 
       {/* Stats */}
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard
-          label="Total CVEs tracked"
-          value={cves.length.toString()}
-          icon={<Radar className="h-4 w-4" />}
-        />
-        <StatCard
-          label="Critical"
-          value={critical.toString()}
-          icon={<AlertTriangle className="h-4 w-4" />}
-          tone="critical"
-        />
-        <StatCard
-          label="High"
-          value={high.toString()}
-          icon={<Activity className="h-4 w-4" />}
-          tone="high"
-        />
-        <StatCard
-          label="Avg CVSS score"
-          value={Number.isFinite(avgScore) ? avgScore.toFixed(1) : "—"}
-          icon={<ShieldCheck className="h-4 w-4" />}
-        />
-      </section>
+      {fetchError && allCves.length === 0 ? (
+        <section className="rounded-lg border border-destructive/40 bg-destructive/10 p-6 text-center">
+          <AlertTriangle className="mx-auto h-8 w-8 text-destructive" />
+          <h2 className="mt-3 text-base font-semibold">Failed to load CVE data</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{fetchError}</p>
+          <button
+            onClick={() => router.invalidate()}
+            className="mt-4 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+          >
+            <RefreshCw className="h-4 w-4" /> Retry
+          </button>
+        </section>
+      ) : (
+        <>
+          <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <StatCard
+              label="Total CVEs tracked"
+              value={cves.length.toString()}
+              icon={<Radar className="h-4 w-4" />}
+            />
+            <StatCard
+              label="Critical"
+              value={critical.toString()}
+              icon={<AlertTriangle className="h-4 w-4" />}
+              tone="critical"
+            />
+            <StatCard
+              label="High"
+              value={high.toString()}
+              icon={<Activity className="h-4 w-4" />}
+              tone="high"
+            />
+            <StatCard
+              label="Avg CVSS score"
+              value={Number.isFinite(avgScore) ? avgScore.toFixed(1) : "—"}
+              icon={<ShieldCheck className="h-4 w-4" />}
+            />
+          </section>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+            <span>
+              Last updated: <span className="text-foreground">{formatRelative(fetchedAt, now)}</span>
+              {fetchError && (
+                <span className="ml-2 text-destructive">· stale ({fetchError})</span>
+              )}
+            </span>
+            <button
+              onClick={() => router.invalidate()}
+              className="inline-flex items-center gap-1 rounded-md border border-border/70 px-2 py-1 text-xs hover:border-primary/50 hover:text-foreground"
+            >
+              <RefreshCw className="h-3 w-3" /> Refresh
+            </button>
+          </div>
+        </>
+      )}
+
 
       {/* Charts */}
       <section className="mt-10">
@@ -250,6 +319,32 @@ function StatCard({
         <span className="text-primary">{icon}</span>
       </div>
       <div className={`mt-2 font-mono text-3xl font-semibold ${valueClass}`}>{value}</div>
+    </div>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="mb-10 space-y-3">
+        <div className="h-3 w-40 animate-pulse rounded bg-muted" />
+        <div className="h-10 w-3/4 animate-pulse rounded bg-muted" />
+        <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
+      </div>
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="rounded-lg border border-border/70 bg-card p-4">
+            <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+            <div className="mt-3 h-8 w-16 animate-pulse rounded bg-muted" />
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 h-3 w-48 animate-pulse rounded bg-muted" />
+      <div className="mt-10 grid gap-4 lg:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-64 animate-pulse rounded-xl border border-border/70 bg-card" />
+        ))}
+      </div>
     </div>
   );
 }
