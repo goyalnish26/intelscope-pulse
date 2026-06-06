@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Newspaper,
   Radar,
+  RefreshCw,
   ShieldCheck,
 } from "lucide-react";
 import { getCves } from "@/lib/cves.functions";
@@ -18,7 +19,7 @@ import {
   SeverityPie,
   TopVendorsBar,
 } from "@/components/threat-charts";
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 const cvesQO = queryOptions({
   queryKey: ["cves", 100],
@@ -45,12 +46,27 @@ export const Route = createFileRoute("/")({
     context.queryClient.ensureQueryData(newsQO);
   },
   component: Dashboard,
-  errorComponent: ({ error }) => (
-    <div className="mx-auto max-w-3xl px-6 py-16 text-center">
-      <p className="text-destructive">Couldn't load the dashboard: {error.message}</p>
-    </div>
-  ),
+  pendingMs: 0,
+  pendingComponent: DashboardSkeleton,
+  errorComponent: ErrorView,
 });
+
+function ErrorView({ error }: { error: Error }) {
+  const router = useRouter();
+  return (
+    <div className="mx-auto max-w-3xl px-6 py-16 text-center">
+      <AlertTriangle className="mx-auto h-10 w-10 text-destructive" />
+      <h2 className="mt-4 text-xl font-semibold">Couldn't load the dashboard</h2>
+      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+      <button
+        onClick={() => router.invalidate()}
+        className="mt-6 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+      >
+        <RefreshCw className="h-4 w-4" /> Retry
+      </button>
+    </div>
+  );
+}
 
 function useCvesByRange<T extends { publishedAt: string }>(cves: T[], days: number): T[] {
   return useMemo(() => {
@@ -64,11 +80,31 @@ function useCvesByRange<T extends { publishedAt: string }>(cves: T[], days: numb
   }, [cves, days]);
 }
 
+function formatRelative(iso: string, now: number): string {
+  const diff = Math.max(0, now - new Date(iso).getTime());
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m} minute${m === 1 ? "" : "s"} ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} hour${h === 1 ? "" : "s"} ago`;
+  const d = Math.floor(h / 24);
+  return `${d} day${d === 1 ? "" : "s"} ago`;
+}
+
 function Dashboard() {
+  const router = useRouter();
   const { data: cveData } = useSuspenseQuery(cvesQO);
   const { data: newsData } = useSuspenseQuery(newsQO);
   const allCves = cveData.cves;
   const news = newsData.news;
+  const fetchError = cveData.error;
+  const fetchedAt = cveData.fetchedAt;
+
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   const [days, setDays] = useState(30);
   const cves = useCvesByRange(allCves, days);
@@ -86,6 +122,8 @@ function Dashboard() {
     { label: "30D", value: 30 },
     { label: "90D", value: 90 },
   ];
+
+
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
