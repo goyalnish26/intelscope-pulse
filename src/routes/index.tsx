@@ -21,8 +21,8 @@ import {
 import { useState, useMemo } from "react";
 
 const cvesQO = queryOptions({
-  queryKey: ["cves", 2000],
-  queryFn: () => getCves({ data: { limit: 2000 } }),
+  queryKey: ["cves", 100],
+  queryFn: () => getCves({ data: { limit: 100 } }),
 });
 const newsQO = queryOptions({
   queryKey: ["news"],
