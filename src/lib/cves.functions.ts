@@ -67,9 +67,15 @@ function toNvdDate(d: Date): string {
 let cache: { ts: number; data: Cve[] } | null = null;
 const CACHE_MS = 10 * 60 * 1000;
 
-async function fetchFromNvd(limit: number): Promise<{ cves: Cve[]; fetchedAt: string; error: string | null }> {
+async function fetchFromNvd(
+  limit: number,
+): Promise<{ cves: Cve[]; fetchedAt: string; error: string | null }> {
   if (cache && Date.now() - cache.ts < CACHE_MS) {
-    return { cves: cache.data.slice(0, limit), fetchedAt: new Date(cache.ts).toISOString(), error: null };
+    return {
+      cves: cache.data.slice(0, limit),
+      fetchedAt: new Date(cache.ts).toISOString(),
+      error: null,
+    };
   }
 
   const now = new Date();
@@ -108,11 +114,18 @@ async function fetchFromNvd(limit: number): Promise<{ cves: Cve[]; fetchedAt: st
       };
     });
     cache = { ts: Date.now(), data };
-    return data.slice(0, limit);
+    return { cves: data.slice(0, limit), fetchedAt: new Date(cache.ts).toISOString(), error: null };
   } catch (err) {
     console.error("NVD fetch failed:", err);
-    if (cache) return cache.data.slice(0, limit);
-    return [];
+    const message = err instanceof Error ? err.message : "Unknown error";
+    if (cache) {
+      return {
+        cves: cache.data.slice(0, limit),
+        fetchedAt: new Date(cache.ts).toISOString(),
+        error: message,
+      };
+    }
+    return { cves: [], fetchedAt: new Date().toISOString(), error: message };
   }
 }
 
@@ -121,6 +134,6 @@ export const getCves = createServerFn({ method: "GET" })
     z.object({ limit: z.number().int().min(1).max(100).default(100) }).parse(input ?? {}),
   )
   .handler(async ({ data }) => {
-    const cves = await fetchFromNvd(data.limit);
-    return { cves };
+    return await fetchFromNvd(data.limit);
   });
+
