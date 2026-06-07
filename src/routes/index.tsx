@@ -236,7 +236,7 @@ function Dashboard() {
 
       {/* CVE + News */}
       <section className="mt-10 grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <SectionHeader
             title="Recent vulnerabilities"
             link="/cves"
@@ -249,7 +249,7 @@ function Dashboard() {
             ))}
           </div>
         </div>
-        <div>
+        <div className="min-w-0">
           <SectionHeader
             title="Security newswire"
             link="/news"
