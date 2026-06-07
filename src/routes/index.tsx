@@ -23,8 +23,8 @@ import {
 import { useEffect, useState, useMemo } from "react";
 
 const cvesQO = queryOptions({
-  queryKey: ["cves", 100],
-  queryFn: () => getCves({ data: { limit: 100 } }),
+  queryKey: ["cves", 2000],
+  queryFn: () => getCves({ data: { limit: 2000 } }),
 });
 const newsQO = queryOptions({
   queryKey: ["news"],
@@ -236,7 +236,7 @@ function Dashboard() {
 
       {/* CVE + News */}
       <section className="mt-10 grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <SectionHeader
             title="Recent vulnerabilities"
             link="/cves"
@@ -249,7 +249,7 @@ function Dashboard() {
             ))}
           </div>
         </div>
-        <div>
+        <div className="min-w-0">
           <SectionHeader
             title="Security newswire"
             link="/news"

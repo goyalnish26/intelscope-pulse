@@ -89,7 +89,7 @@ async function fetchFromNvd(
   const url = new URL("https://services.nvd.nist.gov/rest/json/cves/2.0");
   url.searchParams.set("pubStartDate", toNvdDate(start));
   url.searchParams.set("pubEndDate", toNvdDate(end));
-  url.searchParams.set("resultsPerPage", "100");
+  url.searchParams.set("resultsPerPage", "2000");
   url.searchParams.set("startIndex", "0");
 
   try {
@@ -131,7 +131,7 @@ async function fetchFromNvd(
 
 export const getCves = createServerFn({ method: "GET" })
   .inputValidator((input: { limit?: number } | undefined) =>
-    z.object({ limit: z.number().int().min(1).max(100).default(100) }).parse(input ?? {}),
+    z.object({ limit: z.number().int().min(1).max(2000).default(2000) }).parse(input ?? {}),
   )
   .handler(async ({ data }) => {
     return await fetchFromNvd(data.limit);
