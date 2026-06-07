@@ -89,7 +89,7 @@ async function fetchFromNvd(
   const url = new URL("https://services.nvd.nist.gov/rest/json/cves/2.0");
   url.searchParams.set("pubStartDate", toNvdDate(start));
   url.searchParams.set("pubEndDate", toNvdDate(end));
-  url.searchParams.set("resultsPerPage", "100");
+  url.searchParams.set("resultsPerPage", "2000");
   url.searchParams.set("startIndex", "0");
 
   try {
