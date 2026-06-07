@@ -20,10 +20,6 @@ import {
   SeverityPie,
   TopVendorsBar,
 } from "@/components/threat-charts";
-  PublishedTrend,
-  SeverityPie,
-  TopVendorsBar,
-} from "@/components/threat-charts";
 import { useEffect, useState, useMemo } from "react";
 
 const cvesQO = queryOptions({
