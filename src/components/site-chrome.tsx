@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ShieldAlert } from "lucide-react";
+import { Github, ShieldAlert } from "lucide-react";
 
 const nav = [
   { to: "/", label: "Dashboard" },
@@ -37,6 +37,16 @@ export function SiteHeader() {
               {n.label}
             </Link>
           ))}
+          <a
+            href="https://github.com/goyalnish26"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="GitHub: goyalnish26"
+            title="GitHub"
+            className="ml-1 grid h-9 w-9 place-items-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition"
+          >
+            <Github className="h-4 w-4" />
+          </a>
         </nav>
       </div>
     </header>

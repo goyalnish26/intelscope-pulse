@@ -13,7 +13,8 @@ import {
 import { getCves } from "@/lib/cves.functions";
 import { getNews } from "@/lib/news.functions";
 import { CveCard } from "@/components/cve-card";
-import { SubscribeForm } from "@/components/subscribe-form";
+import { Bookmark } from "lucide-react";
+import { useWatchlist } from "@/hooks/use-watchlist";
 import {
   PublishedTrend,
   SeverityPie,
@@ -275,23 +276,45 @@ function Dashboard() {
         </div>
       </section>
 
-      {/* Subscribe */}
-      <section className="mt-12 rounded-xl border border-primary/30 bg-card p-6 shadow-glow sm:p-8">
-        <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
-          <div>
-            <div className="text-[11px] uppercase tracking-[0.2em] text-primary font-mono">
-              Alerts
-            </div>
-            <h2 className="mt-2 text-2xl font-semibold">Get pinged on critical threats.</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Pick a severity threshold. We'll only email when something crosses it.
-              Unsubscribe any time.
-            </p>
-          </div>
-          <SubscribeForm />
-        </div>
-      </section>
+      {/* Watchlist CTA */}
+      <WatchlistCta />
     </div>
+  );
+}
+
+function WatchlistCta() {
+  const { count } = useWatchlist();
+  return (
+    <section className="mt-12 rounded-xl border border-primary/30 bg-card p-6 shadow-glow sm:p-8">
+      <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div>
+          <div className="text-[11px] uppercase tracking-[0.2em] text-primary font-mono">
+            Your watchlist
+          </div>
+          <h2 className="mt-2 text-2xl font-semibold">
+            Track CVEs that matter to you.
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Bookmark any vulnerability with the{" "}
+            <Bookmark className="inline h-3.5 w-3.5 align-text-bottom text-primary" /> icon
+            and find it again under the Watchlist tab. Stored locally on this device — no
+            account, no email required.
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {count === 0
+              ? "You haven't bookmarked any CVEs yet."
+              : `${count} CVE${count === 1 ? "" : "s"} in your watchlist.`}
+          </p>
+        </div>
+        <Link
+          to="/cves"
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-glow transition hover:brightness-110"
+        >
+          <Bookmark className="h-4 w-4" />
+          Open watchlist
+        </Link>
+      </div>
+    </section>
   );
 }
 
