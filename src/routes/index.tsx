@@ -13,8 +13,13 @@ import {
 import { getCves } from "@/lib/cves.functions";
 import { getNews } from "@/lib/news.functions";
 import { CveCard } from "@/components/cve-card";
-import { SubscribeForm } from "@/components/subscribe-form";
+import { Bookmark } from "lucide-react";
+import { useWatchlist } from "@/hooks/use-watchlist";
 import {
+  PublishedTrend,
+  SeverityPie,
+  TopVendorsBar,
+} from "@/components/threat-charts";
   PublishedTrend,
   SeverityPie,
   TopVendorsBar,
