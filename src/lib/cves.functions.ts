@@ -86,19 +86,38 @@ async function fetchFromNvd(
   const end = new Date(now);
   end.setHours(23, 59, 59, 999);
 
-  const url = new URL("https://services.nvd.nist.gov/rest/json/cves/2.0");
-  url.searchParams.set("pubStartDate", toNvdDate(start));
-  url.searchParams.set("pubEndDate", toNvdDate(end));
-  url.searchParams.set("resultsPerPage", "2000");
-  url.searchParams.set("startIndex", "0");
-
   try {
+    // 1. Get the total number of results first to find where the newest ones are (since default is oldest first)
+    const initUrl = new URL("https://services.nvd.nist.gov/rest/json/cves/2.0");
+    initUrl.searchParams.set("pubStartDate", toNvdDate(start));
+    initUrl.searchParams.set("pubEndDate", toNvdDate(end));
+    initUrl.searchParams.set("resultsPerPage", "1");
+    initUrl.searchParams.set("startIndex", "0");
+
+    const initRes = await fetch(initUrl.toString(), {
+      headers: { "User-Agent": "ThreatIntelDashboard/1.0" },
+    });
+    if (!initRes.ok) throw new Error(`NVD returned ${initRes.status} on initialization`);
+    const initJson = (await initRes.json()) as { totalResults?: number };
+    const totalResults = initJson.totalResults ?? 0;
+
+    // 2. Fetch the latest 100 items (the end of the dataset)
+    const targetLimit = 100;
+    const startIndex = Math.max(0, totalResults - targetLimit);
+
+    const url = new URL("https://services.nvd.nist.gov/rest/json/cves/2.0");
+    url.searchParams.set("pubStartDate", toNvdDate(start));
+    url.searchParams.set("pubEndDate", toNvdDate(end));
+    url.searchParams.set("resultsPerPage", targetLimit.toString());
+    url.searchParams.set("startIndex", startIndex.toString());
+
     const res = await fetch(url.toString(), {
       headers: { "User-Agent": "ThreatIntelDashboard/1.0" },
     });
     if (!res.ok) throw new Error(`NVD returned ${res.status}`);
     const json = (await res.json()) as { vulnerabilities?: NvdCveItem[] };
     const items = json.vulnerabilities ?? [];
+
     const data: Cve[] = items.map((item) => {
       const { severity, score } = extractSeverityAndScore(item);
       const desc = item.cve.descriptions.find((d) => d.lang === "en")?.value ?? "";
@@ -113,6 +132,10 @@ async function fetchFromNvd(
         url: `https://nvd.nist.gov/vuln/detail/${item.cve.id}`,
       };
     });
+
+    // 3. Sort descending (newest first) by published date
+    data.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+
     cache = { ts: Date.now(), data };
     return { cves: data.slice(0, limit), fetchedAt: new Date(cache.ts).toISOString(), error: null };
   } catch (err) {
